@@ -30,13 +30,13 @@ spurs_id = next(team for team in nba_teams if team['abbreviation'] == 'SAS')['id
 gamefinder = leaguegamefinder.LeagueGameFinder(team_id_nullable=spurs_id)
 games = gamefinder.get_data_frames()[0]
 
-# find GAME_ID of the last game that spurs won (already in date order).
-denver_last_win = games[(games.MATCHUP.str.contains('DEN')) & (games.WL == 'W')]
-denver_last_win.reset_index(drop=True, inplace=True)
-game_id = denver_last_win.loc[0, 'GAME_ID']
+# find the last game that spurs won vs Denver Nuggets
+win_vs_denver = games[(games.MATCHUP.str.contains('DEN')) & (games.WL == 'W')]
+win_vs_denver.reset_index(drop=True, inplace=True)
+last_win_denver_id = win_vs_denver.loc[0, 'GAME_ID']
+game_df = playbyplayv2.PlayByPlayV2(last_win_denver_id).get_data_frames()[0]
 
-game_df = playbyplayv2.PlayByPlayV2(game_id).get_data_frames()[0]
-
+# tidy up the dataframe to only include certain columns
 game_df['DESCRIPTION'] = game_df.apply(merge_columns, axis=1)
 game_df = game_df[['GAME_ID', 'PERIOD', 'DESCRIPTION', 'PLAYER1_NAME', 'PLAYER1_TEAM_CITY',
                    'PLAYER2_NAME', 'PLAYER2_TEAM_CITY', 'SCORE', 'SCOREMARGIN']]
