@@ -2,7 +2,8 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.service import Service
 import pandas as pd
-# from db_creds import db_username, db_password, db_port, db_database, db_hostname # creds not included - use sqlite3 option instead
+# creds below have been added to .gitignore - use sqlite3 option instead
+# from db_creds import db_username, db_password, db_port, db_database, db_hostname
 from sqlalchemy import create_engine
 import psycopg2
 import sqlite3
@@ -64,6 +65,7 @@ with webdriver.Chrome(ChromeDriverManager().install()) as driver:  # uses contex
 #                        password=db_password)
 #
 # cur = con.cursor()
+# # added in source url as a column for clarity
 # cur.execute(f"ALTER TABLE {output_table_name} "
 #             f"ADD COLUMN source varchar(100) DEFAULT '{URL}';")
 # con.commit()

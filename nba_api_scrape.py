@@ -2,7 +2,8 @@ from nba_api.stats.static import teams
 from nba_api.stats.endpoints import leaguegamefinder, playbyplayv2
 import pandas as pd
 from sqlalchemy import create_engine
-# from db_creds import db_username, db_password, db_port, db_database, db_hostname # creds not included - use sqlite3 option instead
+# creds below have been added to .gitignore - use sqlite3 option instead
+# from db_creds import db_username, db_password, db_port, db_database, db_hostname
 import sqlite3
 
 def merge_columns(row) -> str:
