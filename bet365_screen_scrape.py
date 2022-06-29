@@ -6,6 +6,7 @@ import pandas as pd
 from sqlalchemy import create_engine
 import psycopg2
 import sqlite3
+from webdriver_manager.chrome import ChromeDriverManager
 
 
 URL = r'https://www.bet365.com/#/AC/B1/C1/D1002/E76169570/G40/K^4/'
@@ -14,8 +15,6 @@ output_table_name = 'premier_league_table'
 # note - chrome driver will probably be different if this is run on another computer (dependent on chrome version)
 options = webdriver.ChromeOptions()
 options.add_argument(r"C:\Users\Terrafirma\Desktop\UserData")
-from webdriver_manager.chrome import ChromeDriverManager
-
 
 with webdriver.Chrome(ChromeDriverManager().install()) as driver:  # uses context manager to always close browser
     driver.get(URL)  # loads url in a new browser
