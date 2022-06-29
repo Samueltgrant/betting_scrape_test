@@ -2,9 +2,10 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.service import Service
 import pandas as pd
-from db_creds import db_username, db_password, db_port, db_database, db_hostname
+# from db_creds import db_username, db_password, db_port, db_database, db_hostname # creds not included - use sqlite3 option instead
 from sqlalchemy import create_engine
 import psycopg2
+import sqlite3
 
 
 URL = r'https://www.bet365.com/#/AC/B1/C1/D1002/E76169570/G40/K^4/'
@@ -50,42 +51,41 @@ with webdriver.Chrome(ChromeDriverManager().install()) as driver:  # uses contex
     team_df = pd.DataFrame.from_dict(team_stats_dict, orient='index')
 
 
-# db method 1: postgres
-# postgres is a better solution in a production environment so have created a locally hosted postgres
-# solution. This won't run on another machine so will either need to be configured or use method 2 below.
-engine = create_engine(f'postgresql://{db_username}:{db_password}@{db_hostname}:{db_port}/{db_database}')
-team_df.to_sql(output_table_name, engine, if_exists='replace')  # connected using sqlqlchemy
-
-# table manipulation using psycopg2
-con = psycopg2.connect(host=db_hostname,
-                       port=db_port,
-                       database=db_database,
-                       user=db_username,
-                       password=db_password)
-
-cur = con.cursor()
-cur.execute(f"ALTER TABLE {output_table_name} "
-            f"ADD COLUMN source varchar(100) DEFAULT '{URL}';")
-con.commit()
-
-# select all data
-select_query = cur.execute(f"select * From {output_table_name};")
-database_return = cur.fetchall()
-print(database_return)
-
-
-# # db method 2: sqlite3
-# # to use postgres across multiple computers, it must be hosted on aws or another server.
-# # I've added in a short bit of code below using sqlite3 to create a local db so the code
-# # can be run by the user of this code. - simply comment out method 1 instead.
-# import sqlite3
-# conn = sqlite3.connect('white_swan') # add data to a sqlite database (called 'white_swan').
-# c = conn.cursor()
-# team_df.to_sql('premier_league_table', conn, if_exists='replace')  # create table (replace if already exists)
-# conn.commit()
+# # db method 1: postgres
+# # postgres is a better solution in a production environment so have created a locally hosted postgres
+# # solution. This won't run on another machine so will either need to be configured or use method 2 below.
+# engine = create_engine(f'postgresql://{db_username}:{db_password}@{db_hostname}:{db_port}/{db_database}')
+# team_df.to_sql(output_table_name, engine, if_exists='replace')  # connected using sqlqlchemy
 #
-# # print results out from db using SQL
-# c.execute('SELECT * '
-#           'FROM premier_league_table')
+# # table manipulation using psycopg2
+# con = psycopg2.connect(host=db_hostname,
+#                        port=db_port,
+#                        database=db_database,
+#                        user=db_username,
+#                        password=db_password)
 #
-# print(c.fetchall())
+# cur = con.cursor()
+# cur.execute(f"ALTER TABLE {output_table_name} "
+#             f"ADD COLUMN source varchar(100) DEFAULT '{URL}';")
+# con.commit()
+#
+# # select all data
+# select_query = cur.execute(f"select * From {output_table_name};")
+# database_return = cur.fetchall()
+# print(database_return)
+
+
+# db method 2: sqlite3
+# to use postgres across multiple computers, it must be hosted on aws or another server.
+# I've added in a short bit of code below using sqlite3 to create a local db so the code
+# can be run by the user of this code. - simply comment out method 1 instead.
+conn = sqlite3.connect('white_swan') # add data to a sqlite database (called 'white_swan').
+c = conn.cursor()
+team_df.to_sql('premier_league_table', conn, if_exists='replace')  # create table (replace if already exists)
+conn.commit()
+
+# print results out from db using SQL
+c.execute('SELECT * '
+          'FROM premier_league_table')
+
+print(c.fetchall())

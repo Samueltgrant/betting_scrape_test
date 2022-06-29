@@ -2,8 +2,8 @@ from nba_api.stats.static import teams
 from nba_api.stats.endpoints import leaguegamefinder, playbyplayv2
 import pandas as pd
 from sqlalchemy import create_engine
-from db_creds import db_username, db_password, db_port, db_database, db_hostname
-
+# from db_creds import db_username, db_password, db_port, db_database, db_hostname # creds not included - use sqlite3 option instead
+import sqlite3
 
 def merge_columns(row) -> str:
     """Takes pandas row and returns the non empty cell from HOMEDESCRIPTION, NEUTRALDESCRIPTION and VISITORDESCRIPTION,
@@ -40,24 +40,23 @@ game_df['DESCRIPTION'] = game_df.apply(merge_columns, axis=1)
 game_df = game_df[['GAME_ID', 'PERIOD', 'DESCRIPTION', 'PLAYER1_NAME', 'PLAYER1_TEAM_CITY',
                    'PLAYER2_NAME', 'PLAYER2_TEAM_CITY', 'SCORE', 'SCOREMARGIN']]
 
-# db method 1: Postgres
-engine = create_engine(f'postgresql://{db_username}:{db_password}@{db_hostname}:{db_port}/{db_database}')
-game_df.to_sql(output_table_name, engine, if_exists='replace')
-
-# connect and print out database from postgres
-df_output = pd.read_sql(f"select * From {output_table_name};", engine)
-print(df_output.head())
-
-# # db method 2: sqlite3 (able to run on other computers)
-# import sqlite3
-# conn = sqlite3.connect('white_swan')
-# c = conn.cursor()
-# game_df.to_sql('last_spurs_win', conn, if_exists='replace') # create table (replace if already exists)
-# conn.commit()
+# # db method 1: Postgres
+# engine = create_engine(f'postgresql://{db_username}:{db_password}@{db_hostname}:{db_port}/{db_database}')
+# game_df.to_sql(output_table_name, engine, if_exists='replace')
 #
-# # print results out from db as a DataFrame
-# df_output = pd.DataFrame(c.execute(f'SELECT * '
-#                                    f'FROM {output_table_name}'))
+# # connect and print out database from postgres
+# df_output = pd.read_sql(f"select * From {output_table_name};", engine)
+# print(df_output.head())
+
+# db method 2: sqlite3 (able to run on other computers)
+conn = sqlite3.connect('white_swan')
+c = conn.cursor()
+game_df.to_sql('last_spurs_win', conn, if_exists='replace') # create table (replace if already exists)
+conn.commit()
+
+# print results out from db as a DataFrame
+df_output = pd.DataFrame(c.execute(f'SELECT * '
+                                   f'FROM {output_table_name}'))
 
 
 print(df_output.head())
